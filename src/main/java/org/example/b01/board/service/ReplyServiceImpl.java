@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -29,13 +30,13 @@ public class ReplyServiceImpl implements ReplyService{
 
     @Override
     public Long register(ReplyDTO replyDTO) {
-        return repository.save(modelMapper.map(replyDTO, Reply.class)).getRno();
+        return repository.save(replyDTO.toEntity()).getRno();
     }
 
     @Override
     public ReplyDTO read(Long rno) {
         return modelMapper.map(repository.findById(rno)
-                .orElseThrow(RuntimeException::new),ReplyDTO.class);
+                .orElseThrow(NoSuchElementException::new),ReplyDTO.class);
     }
 
     @Override
