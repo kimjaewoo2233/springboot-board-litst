@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -27,6 +28,8 @@ public class BoardDTO {
 
     @NotEmpty
     private String writer;
+
+    private List<String> fileNames; //Board에서는 Set으로 선언되어있고 바꿀떄는 Set으로 타입변환을 해줘야한다.
 
     private LocalDateTime regDate;
 

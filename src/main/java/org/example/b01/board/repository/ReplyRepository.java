@@ -14,4 +14,6 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
         @Query("select r from Reply  r where r.board.bno = :bno")
         Page<Reply> listOfBoard(Long bno, Pageable pageable);
         //해당 Board 객체와 연관관계에 해당하는 Reply를 Page타입으로 져옴
+
+        void deleteByBoard_Bno(Long bno);
 }

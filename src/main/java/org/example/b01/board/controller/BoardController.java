@@ -3,11 +3,11 @@ package org.example.b01.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.example.b01.board.dto.BoardDTO;
-import org.example.b01.board.dto.BoardListReplyCountDTO;
-import org.example.b01.board.dto.PageRequestDTO;
-import org.example.b01.board.dto.PageResponseDTO;
+import org.example.b01.board.dto.*;
 import org.example.b01.board.service.BoardService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 
 @Controller
 @RequestMapping("/board")
@@ -24,16 +28,21 @@ import javax.validation.Valid;
 @Log4j2
 public class BoardController {
 
+    @Value("${org.example.b01.path}")
+    private String uploadPath;
+
     private final BoardService boardService;
 
     @GetMapping("/list")
     public void list(PageRequestDTO pageRequestDTO, Model model){
 
-        PageResponseDTO<BoardListReplyCountDTO> pageResponseDTO = boardService.listWithReplyCount(pageRequestDTO);
+        //PageResponseDTO<BoardListReplyCountDTO> pageResponseDTO = boardService.listWithReplyCount(pageRequestDTO);
 
-        log.info( pageResponseDTO);
+        PageResponseDTO<BoardListAllDTO> responseDTO =
+                    boardService.listWithAll(pageRequestDTO);
+        log.info(responseDTO);
 
-        model.addAttribute("responseDTO",pageResponseDTO);
+        model.addAttribute("responseDTO",responseDTO);
     }
 
     @GetMapping("/register")
@@ -97,13 +106,40 @@ public class BoardController {
     }
 
     @PostMapping("/remove")
-    public String remove(Long bno,RedirectAttributes redirectAttributes){
-        log.info("remove post .."+bno);
+    public String remove(BoardDTO boardDTO,RedirectAttributes redirectAttributes){
 
+        Long bno = boardDTO.getBno();
         boardService.remove(bno);
         redirectAttributes.addFlashAttribute("result","removed");
 
+        List<String> fileNames = boardDTO.getFileNames();
+        if(fileNames != null && fileNames.size() > 0){
+            removeFiles(fileNames);
+        }
+
+        redirectAttributes.addFlashAttribute("result","removed");
         return "redirect:/board/list";
+    }
+
+    public void removeFiles(List<String> files){
+            for(String fileName:files){
+                Resource resource = new FileSystemResource(uploadPath + File.separator+fileName);
+
+                String resourceName = resource.getFilename();
+                try{
+                    String contentType = Files.probeContentType(resource.getFile().toPath());
+
+                    resource.getFile().delete();
+
+                    //섬네일이 존재한다면
+                    if(contentType.startsWith("image")){
+                        File thumbnailFile = new File(uploadPath+File.separator+"s_"+fileName);
+                        thumbnailFile.delete();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
     }
 
 
