@@ -51,6 +51,7 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     implementation 'net.coobird:thumbnailator:0.4.16'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
 }
 
