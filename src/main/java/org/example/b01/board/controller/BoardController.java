@@ -8,6 +8,7 @@ import org.example.b01.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,6 +46,7 @@ public class BoardController {
         model.addAttribute("responseDTO",responseDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/register")
     public void registerGet(){
 
